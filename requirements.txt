@@ -1,0 +1,8 @@
+Django~=5.2
+setuptools>=65.5.1
+django-cas-ng~=5.0.1
+djangorestframework-simplejwt~=5.5.1
+django-user-agents~=0.4
+pyyaml~=6.0.3
+ua-parser~=0.18
+user-agents~=2.2.0
