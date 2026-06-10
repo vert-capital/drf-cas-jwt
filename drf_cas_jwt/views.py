@@ -1,6 +1,6 @@
-from datetime import timedelta
 import hmac
 import hashlib
+from datetime import timedelta
 
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
@@ -13,6 +13,7 @@ from django.middleware.csrf import get_token as get_csrf_token
 from rest_framework.response import Response
 from django.contrib.auth.models import update_last_login
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.settings import api_settings as simplejwt_settings
 from rest_framework_simplejwt.exceptions import TokenError
 
 from .models import Token
@@ -207,8 +208,15 @@ class CasLogout(APIView):
         """
         try:
             auth_header = request.headers.get("Authorization", "")
-            if auth_header.startswith("Bearer "):
-                token = auth_header[7:]
+            header_types = simplejwt_settings.AUTH_HEADER_TYPES
+            if len(header_types) == 1:
+                header_type = header_types[0]
+            elif len(header_types) < 1:
+                header_type = "Bearer"
+            else:
+                header_type = header_types[0]  # Default para o primeiro tipo definido
+            if auth_header.startswith(f"{header_type} "):
+                token = auth_header[len(header_type) + 1:]
                 token_hash = hash_token_hmac(token)
 
                 # Delete token record
