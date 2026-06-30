@@ -8,7 +8,7 @@ if sys.version_info < (3, 12):
 
 setup(
     name="drf-cas-jwt",
-    version="1.2.11",
+    version="1.2.13",
     author="Caio de Faria",
     author_email="caio.faria@vert-capital.com",
     packages=find_packages(
