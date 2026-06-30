@@ -23,6 +23,18 @@ class CasJwtAuthentication(JWTAuthentication):
                 header_type = header_types[0]  # Default para o primeiro tipo definido
 
             request.META[simplejwt_settings.AUTH_HEADER_NAME] = f'{header_type} {token}'
+        if "access_token" not in request.COOKIES and getattr(request._request, 'user', None):
+            # Get the session-based user from the underlying HttpRequest object
+            user = getattr(request._request, 'user', None)
+
+            # Unauthenticated, CSRF validation not required
+            if not user or not user.is_active:
+                return None
+
+            self.enforce_csrf(request)
+
+            # CSRF passed with authenticated user
+            return (user, None)
 
         authenticate = super().authenticate(request)
         if not authenticate:
@@ -55,3 +67,21 @@ class CasJwtAuthentication(JWTAuthentication):
             )
 
         return user, validated_token
+
+    def enforce_csrf(self, request):
+        """
+        Enforce CSRF validation for session based authentication.
+        """
+        from rest_framework import exceptions
+        from rest_framework.authentication import CSRFCheck
+
+        def dummy_get_response(request):  # pragma: no cover
+            return None
+
+        check = CSRFCheck(dummy_get_response)
+        # populates request.META['CSRF_COOKIE'], which is used in process_view()
+        check.process_request(request)
+        reason = check.process_view(request, None, (), {})
+        if reason:
+            # CSRF failed, bail with explicit error message
+            raise exceptions.PermissionDenied('CSRF Failed: %s' % reason)
