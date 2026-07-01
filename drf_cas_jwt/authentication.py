@@ -21,7 +21,7 @@ class CasJwtAuthentication(JWTAuthentication):
 
             request.META[simplejwt_settings.AUTH_HEADER_NAME] = f'{header_type} {token}'
 
-        authenticate = super(JWTAuthentication, self).authenticate(request)
+        authenticate = super().authenticate(request)
         if not authenticate:
             return None
         user = authenticate[0]
