@@ -3,12 +3,10 @@ import hashlib
 
 from rest_framework_simplejwt.settings import api_settings as simplejwt_settings
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.authentication import BaseAuthentication
-
 from .models import Token
 
 
-class CasJwtAuthentication(BaseAuthentication, JWTAuthentication):
+class CasJwtAuthentication(JWTAuthentication):
     def authenticate(self, request):
         # Fallback: se não há Authorization header, tenta ler o access_token do cookie
         if not request.META.get(simplejwt_settings.AUTH_HEADER_NAME) and 'access_token' in request.COOKIES:
